@@ -73,10 +73,21 @@ The Muse uses a BT 4.2 [BTLE](https://www.google.com/search?client=firefox-b-1-d
 
 Sometimes Petal Metrics does not work with certain devices. If it doesn't and it is not a solvable issue, try doing the first phase of the project using muselsl and/or brainflow. Talk to other members or the leads if you want help trying this out. 
 
-## Pipeline design
 
 
 
+## Phase 2: Pipeline and Processing Blocks
+
+Pipelining is a data processing design in which data is passed through a series of blocks, each of which usually run some type of processing. In hardware design, parts of these blocks could be adders and multipliers. In software these could be reusable parts of processing code for different applications. 
+
+In our project, we have three main types of classes of interest, and these can seen in the `BCI.py` file: `BCI`, `Pipe`, and `Processing Block`.
+
+
+
+
+### Multithreading and Code Optimization
+
+You 
 
 
 ## Phase 2: Data processing and MNE

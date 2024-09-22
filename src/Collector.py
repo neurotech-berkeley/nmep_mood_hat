@@ -35,7 +35,9 @@ class MovingAverageFilter(PreProcessingSubBlock):
 		self.channel_count = channel_count
 
 	def start(self, stream):
-		... #TODO implement moving average filter
+		#TODO implement moving average filter
+		raise NotImplementedError("FIXME")
+
 
 class OutputBlock:
 	pass
@@ -55,9 +57,9 @@ class ProcessingPipeline:
 				raise TypeError("Argument is not a processing subblock")
 				
 	def run(self):
-		...
 		'''
 		Processing pipeline should maintain ordering. All preprocessing blocks should run
 		  first in order and store the results of preprocessing into the cache in the BCI object.
 		  Post processing will operate on cache blocks (for Phase 3)
 		'''
+		raise NotImplementedError("FIXME")
