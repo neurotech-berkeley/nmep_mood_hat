@@ -138,18 +138,18 @@ This is the first block that you will be implementing. In many situations, it wi
 
 
 
-## Phase 2: Data processing and MNE
+## Phase 3: Data processing and MNE
 To be Released! (I will write this up soon)
 
 
-## Phase 3: Display
+## Phase 4: Display
 To be Released! (I will write this up soon)
 
-## Phase 4: Machine Learning
+## Phase 5: Machine Learning
 To be Released!
 
 
-## Phase 5: Integration and Experimentation
+## Phase 6: Integration and Experimentation
 To be Released! (I will write this up soon)
 
 
