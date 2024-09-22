@@ -15,6 +15,9 @@ The project has been split into several sections/phases, each of which you can r
 # Phase 1: Connecting Headsets and Streaming Data
 
 ## Setting Up Your Environment
+
+To "submit" and push code for us and your peers to help with, you should push your code to a separate branch of the nmep_mood_hat remote repository. Have your full name in the branch name, as well as any additional information you wish (if you are making additional branches to temporarily test features). 
+
 Instructions for installing miniconda can be found [here](https://docs.conda.io/projects/miniconda/en/latest/)
 We would recommend installing miniconda from the command line, which can be found at the bottom of the page. Once downloaded and initialized, open a command line interface to manage environments. We'll follow the instructions on [this page](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment). Environments can be used to manage different versions of packages/python without interfering with other projects.
 
@@ -78,29 +81,76 @@ Sometimes Petal Metrics does not work with certain devices. If it doesn't and it
 
 ## Phase 2: Pipeline and Processing Blocks
 
+_This section assumes you have an understanding of Python classes and [abstract classes](https://www.scaler.com/topics/abstract-class-in-python/)._
+
 Pipelining is a data processing design in which data is passed through a series of blocks, each of which usually run some type of processing. In hardware design, parts of these blocks could be adders and multipliers. In software these could be reusable parts of processing code for different applications. 
 
-In our project, we have three main types of classes of interest, and these can seen in the `BCI.py` file: `BCI`, `Pipe`, and `Processing Block`.
+In our project, we have three main types of classes of interest, and these can seen in the `BCI.py` file: `BCI`, `Pipe`, and `ProcessingBlock`.
+
+**_BCI:_** This class is the first block of your pipeline. The BCI object is the first store/set of queues from which future blocks will receive data (see the "Multithreading" section below), and handles most of the handling with the Petals software and other streaming protocols to actually start streaming in data from your headset. You can take a look at the docstring for the class for more information about the class variables. 
+
+**_Pipe:_** This class is the most fundamental "non-BCI" class, and essentially passes an identical copy of the data it receives to one or multiple processing blocks later in the pipeline (this will be very crucial for processing data in parallel and blocks that require multiple of the same output). 
+
+_**ProcessingBlock:**_ An abstract class that serves as the template for all other processing blocks. It requires that all `ProcessingBlock` classes have an `__init__()` function, a `launch_server()` function that starts the block up to recieve and process data, and a `action()` function that actually does processing and is called by the `launch_server()` function. 
 
 
 
+### Multithreading
 
-### Multithreading and Code Optimization
+Take a look at these videos and articles that explain multithreading:
+- [(Article) Multithreading explained](https://www.techtarget.com/whatis/definition/multithreading)
+- [(Video) Python Threading Library Explained in 8 Minutes](https://www.youtube.com/watch?v=A_Z1lgZLSNc)
 
-You 
+Multithreading is used all over this project, and enables us to optimize a lot of the processing and to keep the output display rate as close as possible to "real time". As we can see above, the Muse S has a sampling rate of 256 Hz, which means it sends 256 samples every second. Your computer's CPU works at a **much** faster rate (what is the processing frequency of your laptop's CPU?), and hence there is a lot of work that could be done in between each sample. 
+
+If we waited to recieve a sample, completed all the processing for that sample, and only _then_ looked for the next sample to process, we would waste a lot of time. In fact, we may actually spend more time than it would take to recieve the next sample. Many processing blocks also require a minimum number of samples before computing a value (e.g. averaging and PSD), which makes this waiting time even longer.
+
+By using multithreading and queues, we can collect data while a block is held up computing on a particular set of samples, and make the processing done by different blocks independent of each other, which speeds up computation. 
+
+Take a look at the `BCI.py` file, specifically the `BCI` and `Pipe` classes. You can see similar functions and behaviors as used in the Python Threading Library tutorial above, as well as the extensive usage of queues to handle the passing of data between different blocks. 
+
+Questions to answer:
+
+4. What is the default streaming protocol used in the `BCI` class? How does the `BCI` class switching between the two streaming protocols?
+5. Queues are a data structure that follows FIFO - "First In First Out". Typically, the `deque` class is used when a queue data structure is required. What is special about the `Queue.queue` class that makes it useful for multithreading?
+6. The `Pipe` class is an identity map: it takes samples and outputs the same samples. The `Pipe` class also has the option to take this input and send multiple copies to n sets of outupus, a "dimension 1 to dimension n" identity map. Why is this necessary for having data accessed by more than one block? Why can't the two blocks access the data directly by running `.get()` on the same input store? (Think about data races).
+
+
+### Pipe Test
+
+**Write a Python test file that uses the classes and functions in `BCI.py` to test the functionality of the `Pipe` class.** Create a set of 2 animations side-by-side using `matplotlib`, one showing the input data to the `Pipe` object, and the other showing the output of the `Pipe` instance. A successful `Pipe` and test file should have identical graphs, and should run pretty fast. **Include a GIF of this testbench working in your project documentation/report.**
+
+**_Common errors_**:
+- `Matplotlib`'s `animation.FuncAnimation` has an optional argument `interval` that determines the delay in milliseconds between each frame. This is set to 200ms by default, which would make your code _seem_ very slow. Decreasing this value (to the minimum viable number) will solve this problem.
+- ChatGPT sometimes has meltdown understanding how to correct errors with `animation.FuncAnimation`. Look at documentation and examples online, these are often more reliable than wrestling with an LLM for an hour.
+
+
+> [!NOTE]
+> You should be writing test files like this to test the functionality of every processing block you write, and saving some result of a successful test, whether it be pictoral or GIF evidence, or CSVs/Python Notebooks of the resultant processed data. The latter set of evidence would make it much easier for your peers to help you. 
+
+
+### `csvOutput` block
+
+This is the first block that you will be implementing. In many situations, it will be useful to save the output of your pipeline into a CSV, which you can then read using Python or Jupyter Notebook to compare how your processing blocks compare against functions implemented in public libraries such as `mne`, `scipy`, and `numpy`. 
+
+**Write a block `csvOutput` that takes incoming data and saves it into a single CSV. Make this agnostic of how many input channels there are, and how many inputs there are ** (if there are more than one block outputs that you want to save into the the CSV, your block should be able to handle it). You also may want to record your data for a very long time, and holding this data in a store in Python for very long time will be very memory intensive: **ensure that your block is adding data to the CSV continuously/in chunks over time, and not just all at once at the end.**
+
+
 
 
 ## Phase 2: Data processing and MNE
+To be Released! (I will write this up soon)
+
+
+## Phase 3: Display
+To be Released! (I will write this up soon)
+
+## Phase 4: Machine Learning
 To be Released!
 
-## Phase 3: Machine Learning
-To be Released!
-
-## Phase 4: Circuits
-To be Released!
 
 ## Phase 5: Integration and Experimentation
-To be Released!
+To be Released! (I will write this up soon)
 
 
 ## Contributers
