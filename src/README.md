@@ -62,21 +62,20 @@ The most important information is the EEG Channel information; we will be focusi
 
 The Muse uses a BT 4.2 [BTLE](https://www.google.com/search?client=firefox-b-1-d&q=BTLE) connection to stream data to devices. You can hence connect the Muse to your iOS or Android devices for mobile applications, or connect to your laptops as we will do in this project. If you have an understanding of networking and wireless communications, you could create a tool to connect and directly stream information to your device, but for the sake of most projects we will use [Petals software](https://docs.petal.tech/).
 
-### Connecting with Petals - Questions
+### Connecting with Petals
 
-1. Follow the [instructions on this page](https://docs.petal.tech/connect-to-muse/connect-a-muse-device) to install petals and connect to the Muse. Also make sure to follow the OS specific instructions for connecting linked on the same page. Write steps below on how to connect with the Muse.
+1. Download Petals from the [NTAB Software Notion page](https://www.notion.so/Misc-7ec2f0f79bda45f4afaef6f5633877e6)
 
-2. The Petals Metrics software uses OSC or LSL. What are they? What is the difference between the two? What is UDP? What is the relation between UDP and OSC?
+2. Follow the [instructions on this page](https://docs.petal.tech/connect-to-muse/connect-a-muse-device) to start Petals and connect the service with the Muse. USE OSL as your selected type.
 
-3. Read src/osc_muse_stream.py and get it to run. What is Python OSC? What is pythonosc.osc_server.ThreadingOSCUDPServer? What is pythonosc.dispatcher.Dispatcher()? 
+3. Once petals is running and connected with the muse, open up the project codebase read src/osc_muse_stream.py. Run it by opening a terminal in VS Code, and writing the command python osc_muse_stream.py
 
+4. With that you should see a message printing every second representing the datastream from the Muse headset! Nice work
 
 
 ### Troubleshooting
 
 Sometimes Petal Metrics does not work with certain devices. If it doesn't and it is not a solvable issue, try doing the first phase of the project using muselsl and/or brainflow. Talk to other members or the leads if you want help trying this out. 
-
-
 
 
 ## Phase 2: Pipeline and Processing Blocks
