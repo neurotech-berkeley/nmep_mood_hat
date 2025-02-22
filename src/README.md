@@ -169,6 +169,19 @@ With an OSC streaming protocol, the data is sent in bundles of multiple samples,
 **Task:** The Muse headset (and other headsets that use OSC and LSL streaming protocols) send a sample ID or timestamp. Design a block that takes both the data from the headset channels and the timestamps, waits for several samples and then sends this set of samples reordered. Note you can assume that this misordering only happens between samples pretty close to each other chronologically. IF you try ordering every 10-20 samples this should be suffficent. (suggestion: add the number of samples reordered as an optional parameter for your reordering block class).
 
 
+### Block: Notch Filter
+
+Power lines and power outlets operate at 60 Hz, which produces noise in our data. This noise can override the actual EEG data collected, but luckily the power of signal processing lets us counteract this!! This block will allow you to implement a filter on the data to remove 60 Hz noise. 
+
+**Task:** Design a block that uses MNE(a library for working with neuromodalities like EEG) to implement a notch filter. This block should accept the data from the headset channels and the frequency you want to filter out(in this case 60 but make it variable), and output the same data but with 60 Hz noise filtered out. Here's the MNE notch filter documentation: https://mne.tools/1.8/generated/mne.filter.notch_filter.html
+
+If you're interested in learning more about 60 Hz noise and why we bother filtering it: https://people.ece.cornell.edu/land/courses/ece4760/FinalProjects/s2008/rmo25_kdw24/rmo25_kdw24/index.html#:~:text=60%20Hz%20noise%20is%20frustrating,systems%20near%20an%20AC%20transformer.
+
+
+### Block: Power Spectral Density(PSD)
+
+Power spectral density is a way to visualize how powerful each frequency present in a signal is. 
+
 More block descriptions coming soon!
 
 
