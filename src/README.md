@@ -140,7 +140,7 @@ This is the first block that you will be implementing. In many situations, it wi
 > Each "block" should be written as a Python class. For computational blocks, use inheritance and inherit the `ProcessingBlock` template class (ask leads for help if any parts of the project are confusing). You should be implementing/re-implementing functions from the template class and adding any extra functions necessary. 
 
 
-## Phase 3: Data processing and MNE
+## Phase 3: Data processing and Pipeline
 
 By this stage, you have finished your very own block! Great!
 
@@ -153,13 +153,31 @@ Recall that in our real-time processing setup, we make use of blocks that each d
 - **Notch Filters:** Filters generally take signals and either filter out information in the time domain, or filter out frequencies in the frequency domain. A notch filter takes a specific frequency value and attenuates it (decreases amplitude), which is extremely useful for certain large and predictable sources of [noise](https://www.sfu.ca/~gotfrit/ZAP_Sept.3_99/h/hum_interference.html)!
 - **Integration:** taking the integral for a range of data in the frequency domain is a very useful when calculating band powers, or powers of brainwave bands.
 
+Below you can see a diagram of the various blocks of a barebones implementation of the mood hat project.
+
+![image](mood_hat_pipeline.jpg)
+
+1. Data is streamed from the Muse S headset to you device, and the recieving of data is handled my a package, in this case Petal Metrics (other libraries used for this include pylsl, muselsl, Brainflow).
+2. The `BCI` class object is used to collect the datastream from Petals into the first set of storage queues. This is where our pipeline begins. When using different headsets, this class has to be expanded and modified to work with new headsets.
+3. Depending on the protocol you use or depending on how noisy your data is, you may want to include some initial processing blocks to clean your data before future steps.
+  * For some streaming protocols like OSC, the data is sent in ordered chunks, but data in the chunks can be unordered. For this, we may want to implement an **Reordering Blocks** to take n samples and sort them before sending them to the next block. 
+  * In some situations you may want to smoothen your data by using a **Moving Average Filter** which averages the current sample with values before and ahead of it.
+4. Data is then passed into signal processing blocks (see Phase 4):
+  * Data is first passed into **Filtering blocks**, e.g. the **Notch Filter** block. This runs computations on the signal that affects different frequencies in the signal, which is useful to remove noise.
+  * Filtered data is them passed into a **Power Spectral Density** block, which takes in a time series data and outputs the frequency information in the data. This is what we will need to do most of our other computation.
+  * We are usually interested in the relative power of groups of frequencies (frequency bands, e.g. alpha, beta, gamma, delta) instead of the power of an individual frequency when doing EEG analysis. Hence, we will take multiple frequency outputs from the PSD block and run them through an **Integrator** block that integrates the signals received.
+  * Sometimes the ratio of two different frequency bands are useful for measuring states like focus, and hence we may compute some ratios using a **Ratio** block (takes two inputs and outputs the division of the two values).
+5. All this information is fed into the **Display Block**. This does some computation on the inputs it receives (up to you to decide and be creative with!), and outputs a matrix plot to visualize the changing signals.
+6. **Electronics:** This Display can be sent to an LED Matrix, a electronic component with a grid of RGB LEDs which can be programmed.
+
+
 ### Block: Averaging
 
 **Task:** Implement a block for computing a "moving average". For each channel, your block will take in several samples of data, then send the data to the next block (still use the same system of queues and stores that the `Pipe` class used). 
 
 This will have you implement a block that takes a signal and returns a signal that is the average of every x samples. 
 
-**Challenge:** Try to implement a stronger and more useful version of the moving average which allows for overlap over the x samples used to calculate the average. Allowing for overlap allows for more samples to be outputted, and is better from a signals point of view (refer to EE120 and EE123 for more details on why). 
+**(Light) Challenge:** Try to implement a stronger and more useful version of the moving average which allows for overlap over the x samples used to calculate the average. Allowing for overlap allows for more samples to be outputted, and is better from a signals point of view (refer to EE120 and EE123 for more details on why). 
 
 
 ### Block: Reordering
@@ -167,6 +185,9 @@ This will have you implement a block that takes a signal and returns a signal th
 With an OSC streaming protocol, the data is sent in bundles of multiple samples, however the data inside these bundles do not have to be ordered. This is a big problem for analyse as we depend on our data being ordered for signal analysis and noise reduction. 
 
 **Task:** The Muse headset (and other headsets that use OSC and LSL streaming protocols) send a sample ID or timestamp. Design a block that takes both the data from the headset channels and the timestamps, waits for several samples and then sends this set of samples reordered. Note you can assume that this misordering only happens between samples pretty close to each other chronologically. IF you try ordering every 10-20 samples this should be suffficent. (suggestion: add the number of samples reordered as an optional parameter for your reordering block class).
+
+
+## Phase 4: Signal Processing
 
 
 ### Block: Notch Filter
@@ -188,24 +209,24 @@ More block descriptions coming soon!
 
 
 
-## Phase 4: Display
+## Phase 5: Display
 To be Released! (I will write this up soon)
 
-## Phase 5: Machine Learning
+## Phase 6: Machine Learning
 To be Released!
 
 
-## Phase 6: Integration and Experimentation
+## Phase 7: Integration and Experimentation
 
 You are almost at the end! Congrats!
 
-### Phase 6.1: Reconstruct a Full EEG Mood Hat Pipeline
+### Phase 7.1: Reconstruct a Full EEG Mood Hat Pipeline
 
 Now it is time to put everything together. Create a full pipeline that takes EEG data, has a moving average filter (optional), computes the PSD, calculates for the theta-beta band ratio correlating with attention, and using it to display a a visual where the amount of noise is controlled by the theta-beta ratio. If errors are found when testing remaining blocks in the pipeline, feel free to make changes and push them along with files that test for the correctness of the blocks.
 
 Keep this demo in a separate script, and test your complete system!
 
-### Phase 6.2: Project Extensions
+### Phase 7.2: Project Extensions
 
 Now is the fun part!
 
